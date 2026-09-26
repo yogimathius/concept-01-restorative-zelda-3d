@@ -3,6 +3,11 @@ extends Node
 ## Base for hero abilities. The hero forwards input edges (pressed / held /
 ## released) and ticks the verb every physics frame; the verb owns its own
 ## timing, hit queries, feedback and animation.
+##
+## Lifecycle contract: on_held and on_released only ever follow an
+## on_pressed. A press made while the hero can't act is ignored entirely.
+## Losing control mid-hold (root, surge, hazard) calls on_released once, and
+## the player must press again afterwards.
 
 @export var cooldown: float = 0.3
 

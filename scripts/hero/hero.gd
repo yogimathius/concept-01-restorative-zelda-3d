@@ -51,6 +51,8 @@ var _dash_left := 0.0
 var _dash_cooldown_left := 0.0
 var _dash_dir := Vector3.ZERO
 var _held := {SLOT_FORCE: false, SLOT_RESTORE: false}
+# a verb only receives held/released after it received pressed (see Verb)
+var _delivered := {SLOT_FORCE: false, SLOT_RESTORE: false}
 
 @onready var gauge: StateGauge = $StateGauge
 @onready var visuals: Node3D = $Visuals
@@ -90,6 +92,9 @@ func _rebuild_model() -> void:
 func _rebuild_verbs() -> void:
 	for child in verbs_root.get_children():
 		child.free()
+	for slot in _held:
+		_held[slot] = false
+		_delivered[slot] = false
 	force_verb = _make_verb(hero_class.force_verb)
 	restore_verb = _make_verb(hero_class.restore_verb)
 
@@ -121,8 +126,10 @@ func set_verb_held(slot: StringName, held: bool) -> void:
 		return
 	if held:
 		if is_controllable():
+			_delivered[slot] = true
 			verb.on_pressed()
-	else:
+	elif _delivered[slot]:
+		_delivered[slot] = false
 		verb.on_released()
 
 func request_dash() -> void:
@@ -235,7 +242,7 @@ func _tick_verbs(delta: float) -> void:
 		var verb := _verb_for(slot)
 		if verb == null:
 			continue
-		if _held[slot] and is_controllable():
+		if _delivered[slot]:
 			verb.on_held(delta)
 		verb.tick(delta)
 
@@ -289,7 +296,18 @@ func _verb_move_multiplier() -> float:
 func _verb_for(slot: StringName) -> Verb:
 	return force_verb if slot == SLOT_FORCE else restore_verb
 
+## Losing control releases any held verb once; the player must press again
+## after control returns (a channel never silently resumes).
+func _interrupt_verbs() -> void:
+	for slot in _delivered:
+		if _delivered[slot]:
+			_delivered[slot] = false
+			var verb := _verb_for(slot)
+			if verb:
+				verb.on_released()
+
 func _on_overloaded(_id: StringName, def: StateDefinition) -> void:
+	_interrupt_verbs()
 	_dash_left = 0.0
 	dash_iframes = false
 	match def.overload:
@@ -306,6 +324,7 @@ func _on_overloaded(_id: StringName, def: StateDefinition) -> void:
 	lose_heart(&"overload")
 
 func _on_hazard() -> void:
+	_interrupt_verbs()
 	lose_heart(&"hazard")
 	Juice.sfx("hazard")
 	respawn_at(last_safe_position)
@@ -324,6 +343,9 @@ func _update_safe_position() -> void:
 
 func _update_animation() -> void:
 	if anim_player == null or (force_verb and force_verb.active):
+		return
+	# let the attack clip's follow-through finish after the hit lands
+	if anim_player.current_animation == &"attack" and anim_player.is_playing():
 		return
 	var moving := Vector2(velocity.x, velocity.z).length() > 0.3
 	var anim := &"walk" if moving else &"idle"
