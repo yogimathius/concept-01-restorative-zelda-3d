@@ -1,0 +1,17 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://c3d01toonmat"]
+
+[ext_resource type="Shader" path="res://shaders/toon_base.gdshader" id="1_base"]
+[ext_resource type="Shader" path="res://shaders/toon_outline.gdshader" id="2_outline"]
+[ext_resource type="Texture2D" path="res://shaders/toon_ramp.tres" id="3_ramp"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_outline"]
+shader = ExtResource("2_outline")
+shader_parameter/outline_width = 0.012
+shader_parameter/outline_color = Color(0.02, 0.01, 0.03, 1)
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_base")
+shader_parameter/base_color = Color(0.6, 0.6, 0.6, 1)
+shader_parameter/ramp_texture = ExtResource("3_ramp")
+next_pass = SubResource("ShaderMaterial_outline")

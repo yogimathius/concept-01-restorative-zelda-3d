@@ -1,0 +1,73 @@
+[gd_scene load_steps=13 format=3 uid="uid://c3d01roomscene"]
+
+[ext_resource type="Script" path="res://scripts/room_setup.gd" id="1_setup"]
+[ext_resource type="Script" path="res://scripts/heal_trigger.gd" id="2_heal"]
+[ext_resource type="Script" path="res://scripts/enemy_patrol.gd" id="3_enemy"]
+[ext_resource type="Material" path="res://shaders/toon_outline_material.tres" id="4_toon"]
+[ext_resource type="PackedScene" path="res://assets/environment/corrupted_tile.glb" id="5_corrupted"]
+[ext_resource type="PackedScene" path="res://assets/environment/restored_tile.glb" id="6_restored"]
+[ext_resource type="PackedScene" path="res://assets/environment/heal_prop.glb" id="7_healprop"]
+[ext_resource type="PackedScene" path="res://assets/environment/dead_tree.glb" id="8_deadtree"]
+[ext_resource type="PackedScene" path="res://assets/environment/live_tree.glb" id="9_livetree"]
+[ext_resource type="PackedScene" path="res://assets/environment/enemy.glb" id="10_enemy"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_healtrigger"]
+radius = 1.5
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
+radius = 0.25
+height = 0.6
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy_damage"]
+radius = 0.34
+height = 0.75
+
+[node name="Room" type="Node3D"]
+script = ExtResource("1_setup")
+corrupted_tile_scene = ExtResource("5_corrupted")
+corrupted_tiles_root = NodePath("CorruptedTilesRoot")
+grid_size = 5
+tile_spacing = 1.0
+toon_material = ExtResource("4_toon")
+
+[node name="CorruptedTilesRoot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.02, 0)
+
+[node name="RestoredTilesRoot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.02, 0)
+
+[node name="HealProp" parent="." instance=ExtResource("7_healprop")]
+
+[node name="HealTrigger" type="Area3D" parent="HealProp"]
+script = ExtResource("2_heal")
+corrupted_tiles_root = NodePath("../../CorruptedTilesRoot")
+restored_tiles_root = NodePath("../../RestoredTilesRoot")
+restored_tile_scene = ExtResource("6_restored")
+grid_size = 5
+tile_spacing = 1.0
+toon_material = ExtResource("4_toon")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HealProp/HealTrigger"]
+shape = SubResource("SphereShape3D_healtrigger")
+
+[node name="DeadTree" parent="." instance=ExtResource("8_deadtree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -3)
+
+[node name="LiveTree" parent="." instance=ExtResource("9_livetree")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -3)
+
+[node name="Enemy" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.22, 2)
+script = ExtResource("3_enemy")
+patrol_distance = 1.5
+speed = 1.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy"]
+shape = SubResource("CapsuleShape3D_enemy")
+
+[node name="DamageZone" type="Area3D" parent="Enemy"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Enemy/DamageZone"]
+shape = SubResource("CapsuleShape3D_enemy_damage")
+
+[node name="enemy" parent="Enemy" instance=ExtResource("10_enemy")]

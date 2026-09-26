@@ -1,0 +1,11 @@
+[gd_resource type="GradientTexture1D" load_steps=2 format=3 uid="uid://c3d01toonramp"]
+
+[sub_resource type="Gradient" id="Gradient_ramp"]
+interpolation_mode = 0
+offsets = PackedFloat32Array(0, 0.34, 0.35, 0.66, 0.67, 1)
+colors = PackedColorArray(0.15, 0.15, 0.15, 1, 0.15, 0.15, 0.15, 1, 0.45, 0.45, 0.45, 1, 0.45, 0.45, 0.45, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+
+[resource]
+gradient = SubResource("Gradient_ramp")
+width = 64
+use_hdr = false
