@@ -1,2 +1,4 @@
 .godot/
 builds/
+*.blend1
+art/kit.blend
