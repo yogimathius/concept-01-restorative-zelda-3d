@@ -31,6 +31,13 @@ PALETTE = {
     "leaf": "#3FAE8F",
     "leaf_light": "#7FD0A0",
     "water": "#5FD6CF",
+    # walkable ground: calmer than accent ivory so the floor never glares
+    "floor": "#BBA984",
+    "floor_2": "#AE9C77",
+    "seam": "#23807A",
+    "floor_c": "#6E6A78",
+    "floor_c2": "#625E6D",
+    "seam_c": "#3A3743",
 }
 
 _materials = {}

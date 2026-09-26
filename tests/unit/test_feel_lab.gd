@@ -106,3 +106,20 @@ func _tap(action: String) -> void:
 		ev.action = action
 		ev.pressed = pressed
 		Input.parse_input_event(ev)
+
+func test_lab_is_dressed_with_the_kit() -> void:
+	await load_lab()
+	var dresser: KitDresser = lab.get_node("LabDressing/Dresser")
+	var batches := dresser.get_children().filter(func(c): return c is MultiMeshInstance3D)
+	var total := 0
+	for b in batches:
+		total += b.multimesh.instance_count
+	check(batches.size() >= 12, "many distinct kit pieces (got %d)" % batches.size())
+	check(total >= 800, "30x30 dressed field (got %d instances)" % total)
+	check(batches.size() <= 60, "draw calls stay batched (got %d)" % batches.size())
+
+func test_dummies_are_kit_training_posts() -> void:
+	await load_lab()
+	var post := lab.get_node("Dummies/DummyCenter").find_child("*", true, false)
+	var pieces := lab.get_node("Dummies/DummyCenter").find_children("*", "KitPiece", true, false)
+	check(pieces.size() == 1 and pieces[0].shape == "training_post", "dummy wears the training post")

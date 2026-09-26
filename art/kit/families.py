@@ -17,6 +17,12 @@ def m(name, glow=0.0):
     return material(name, glow)
 
 
+def floor_mats(corrupted):
+    if corrupted:
+        return [m("floor_c"), m("floor_c2")], m("seam_c")
+    return [m("floor"), m("floor_2")], m("seam")
+
+
 def crust(piece, rng, count, area=0.4, h=(0.1, 0.22), z=0.0):
     """Scatter black crust shards over the top of a piece."""
     for _ in range(count):
@@ -36,11 +42,12 @@ def pointing(bm_part, direction):
 def ground(variation):
     def build(p, corrupted):
         layout = rng_for("ground", variation)
-        stones = [m("chalk"), m("chalk_dark")] if corrupted else [m("ivory"), m("ivory_shade")]
-        gap = m("charcoal") if corrupted else m("turquoise", 0.9)
-        flagstones(p, (-0.5, -0.5, 0.5, 0.5), layout, stones, gap)
-        if corrupted:
-            crust(p, rng_for("ground-crust", variation), 1 + "abc".index(variation) % 3, area=0.38)
+        # ground is the most repeated piece: calm floor stone, deep seams,
+        # no glow -- bright or busy tiles read as noise at camera distance
+        stones, gap = floor_mats(corrupted)
+        flagstones(p, (-0.5, -0.5, 0.5, 0.5), layout, stones, gap, depth=1)
+        if corrupted and variation == "a":
+            crust(p, rng_for("ground-crust", variation), 1, area=0.3, h=(0.14, 0.24))
     return build
 
 
@@ -74,9 +81,7 @@ def _reed_tuft(p, rng, at, count=2, tall=0.45):
 
 def bank_straight(p, corrupted):
     rng = rng_for("bank_straight")
-    flagstones(p, (-0.5, -0.28, 0.5, 0.5), rng,
-               [m("chalk"), m("chalk_dark")] if corrupted else [m("ivory"), m("ivory_shade")],
-               m("charcoal") if corrupted else m("turquoise", 0.9), depth=1)
+    flagstones(p, (-0.5, -0.28, 0.5, 0.5), rng, *floor_mats(corrupted), depth=1)
     for x in (-0.25, 0.25):
         _curb(p, corrupted, (x, -0.38, -0.02), (0.48, 0.2, 0.16), rng)
     _cliff(p, corrupted, (0, -0.45, -0.62), (1.0, 0.12, 1.2), rng)
@@ -91,9 +96,7 @@ def bank_straight(p, corrupted):
 
 def bank_corner_outer(p, corrupted):
     rng = rng_for("bank_corner_outer")
-    flagstones(p, (-0.5, -0.28, 0.28, 0.5), rng,
-               [m("chalk"), m("chalk_dark")] if corrupted else [m("ivory"), m("ivory_shade")],
-               m("charcoal") if corrupted else m("turquoise", 0.9), depth=1)
+    flagstones(p, (-0.5, -0.28, 0.28, 0.5), rng, *floor_mats(corrupted), depth=1)
     _curb(p, corrupted, (-0.16, -0.38, -0.02), (0.66, 0.2, 0.16), rng)
     _curb(p, corrupted, (0.38, 0.16, -0.02), (0.2, 0.66, 0.16), rng)
     _cliff(p, corrupted, (-0.06, -0.45, -0.62), (0.88, 0.12, 1.2), rng)
@@ -112,8 +115,7 @@ def bank_corner_outer(p, corrupted):
 
 def bank_corner_inner(p, corrupted):
     rng = rng_for("bank_corner_inner")
-    stones = [m("chalk"), m("chalk_dark")] if corrupted else [m("ivory"), m("ivory_shade")]
-    gap = m("charcoal") if corrupted else m("turquoise", 0.9)
+    stones, gap = floor_mats(corrupted)
     flagstones(p, (-0.5, -0.5, 0.0, 0.5), rng, stones, gap, depth=1)
     flagstones(p, (0.0, 0.0, 0.5, 0.5), rng, stones, gap, depth=0)
     _curb(p, corrupted, (0.27, 0.08, -0.02), (0.46, 0.16, 0.16), rng)
@@ -337,7 +339,7 @@ def signal_groove(p, corrupted):
                              0.07, 0.02), m("charcoal"))
             x += seg + rng.uniform(0.06, 0.14)
     else:
-        p.add(flat_strip((-0.5, 0), (0.5, 0), 0.07, 0.02), m("gold", 2.6))
+        p.add(flat_strip((-0.5, 0), (0.5, 0), 0.07, 0.02), m("gold", 1.3))
 
 
 # --- 14 spillway ring ------------------------------------------------------------
@@ -379,8 +381,8 @@ def pad_weight(p, corrupted):
     for x in (-0.5, 0.5):
         for y in (-0.5, 0.5):
             p.add(box((x, y, -0.03), (0.94, 0.94, 0.12), bevel=0.03, jitter=0.01, rng=rng),
-                  m("chalk_dark") if corrupted else m("ivory_shade"))
-    border = m("chalk") if corrupted else m("gold", 1.6)
+                  m("floor_c") if corrupted else m("floor_2"))
+    border = m("chalk") if corrupted else m("gold", 1.1)
     for (a, b) in (((-0.98, -0.98), (0.98, -0.98)), ((-0.98, 0.98), (0.98, 0.98)),
                    ((-0.98, -0.98), (-0.98, 0.98)), ((0.98, -0.98), (0.98, 0.98))):
         p.add(flat_strip(a, b, 0.06, 0.03), border)

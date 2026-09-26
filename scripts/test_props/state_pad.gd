@@ -8,6 +8,7 @@ extends Area3D
 @export var rate: float = 35.0
 @export var size := Vector2(2.0, 2.0)
 @export var color := Color(0.6, 0.5, 0.4)
+@export var show_visual := true
 
 var _bodies: Array[Node3D] = []
 
@@ -18,16 +19,17 @@ func _ready() -> void:
 	shape.shape = box
 	shape.position.y = 0.5
 	add_child(shape)
-	var plane := PlaneMesh.new()
-	plane.size = size
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = color
-	plane.material = mat
-	var mi := MeshInstance3D.new()
-	mi.mesh = plane
-	mi.position.y = 0.02
-	add_child(mi)
+	if show_visual:
+		var plane := PlaneMesh.new()
+		plane.size = size
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_color = color
+		plane.material = mat
+		var mi := MeshInstance3D.new()
+		mi.mesh = plane
+		mi.position.y = 0.02
+		add_child(mi)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
