@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="HeroClass" format=3]
+
+[ext_resource type="Script" path="res://scripts/hero/hero_class.gd" id="1_class"]
+[ext_resource type="PackedScene" path="res://assets/characters/hero.glb" id="2_model"]
+[ext_resource type="PackedScene" path="res://scenes/verbs/warden_shove.tscn" id="3_shove"]
+[ext_resource type="Resource" path="res://data/states/warden_weight.tres" id="4_weight"]
+
+[resource]
+script = ExtResource("1_class")
+display_name = "Warden"
+model = ExtResource("2_model")
+base_speed = 4.2
+base_accel = 30.0
+base_turn_rate = 14.0
+dash_distance = 3.5
+force_verb = ExtResource("3_shove")
+state_overrides = [ExtResource("4_weight")]

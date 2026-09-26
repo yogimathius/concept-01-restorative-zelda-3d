@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/hero/verbs/warden_shove.gd" id="1_shove"]
+
+[node name="WardenShove" type="Node"]
+script = ExtResource("1_shove")
+cooldown = 0.35
