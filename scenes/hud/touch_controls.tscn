@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://c3d01touchcontrols"]
+[gd_scene format=3 uid="uid://c3d01touchcontrols"]
 
 [ext_resource type="PackedScene" path="res://addons/virtual_joystick/virtual_joystick_scene.tscn" id="1_joystick"]
 [ext_resource type="Texture2D" path="res://addons/virtual_joystick/textures/joystick_tip.png" id="2_button_tex"]
@@ -12,16 +12,16 @@ action_right = "move_right"
 action_up = "move_up"
 action_down = "move_down"
 
-[node name="AttackButton" type="TouchScreenButton" parent="."]
-position = Vector2(584, 304)
-scale = Vector2(0.36, 0.36)
+[node name="ForceButton" type="TouchScreenButton" parent="."]
+position = Vector2(556, 276)
+scale = Vector2(0.64, 0.64)
 texture_normal = ExtResource("2_button_tex")
-action = "attack"
-self_modulate = Color(1, 0.5, 0.5, 0.85)
+action = "force"
+self_modulate = Color(1, 0.6, 0.35, 0.85)
 
-[node name="InteractButton" type="TouchScreenButton" parent="."]
-position = Vector2(584, 264)
-scale = Vector2(0.36, 0.36)
+[node name="DashButton" type="TouchScreenButton" parent="."]
+position = Vector2(508, 306)
+scale = Vector2(0.4, 0.4)
 texture_normal = ExtResource("2_button_tex")
-action = "interact"
-self_modulate = Color(0.5, 0.7, 1, 0.85)
+action = "dash"
+self_modulate = Color(0.75, 0.8, 1, 0.85)

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/hero/hero.gd" id="1_hero"]
 [ext_resource type="Script" path="res://scripts/core/state_gauge.gd" id="2_gauge"]
+[ext_resource type="Script" path="res://scripts/hero/state_ring.gd" id="3_ring"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hero"]
 radius = 0.3
@@ -20,3 +21,6 @@ shape = SubResource("CapsuleShape3D_hero")
 script = ExtResource("2_gauge")
 
 [node name="Verbs" type="Node" parent="."]
+
+[node name="StateRing" type="MeshInstance3D" parent="."]
+script = ExtResource("3_ring")
