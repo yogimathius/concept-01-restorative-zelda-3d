@@ -1,5 +1,5 @@
 extends Node3D
-## Step-1 feel lab: shove dummies, feel Weight/Charge on the pads, lose
+## Step-1 feel lab: pulse dummies, feel Weight/Charge on the pads, lose
 ## hearts to overload and the hazard, fail and retry. Failure handling here
 ## is a stand-in for CheckpointDirector (build step 6).
 

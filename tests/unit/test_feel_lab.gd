@@ -18,9 +18,9 @@ func test_lab_loads_with_warden_and_full_hearts() -> void:
 	check(hero.hearts == 5, "full hearts")
 	check(lab.get_node("Dummies").get_child_count() == 3, "three dummies")
 
-func test_shoving_a_lab_dummy_moves_it() -> void:
+func test_pulsing_a_lab_dummy_moves_it() -> void:
 	await load_lab()
-	var dummy: ShoveDummy = lab.get_node("Dummies/DummyCenter")
+	var dummy: TrainingDummy = lab.get_node("Dummies/DummyCenter")
 	var start_z := dummy.global_position.z
 	hero.move_input = Vector2(0, -1)   # turn and walk toward the dummy (at -z)
 	for i in 90:
@@ -32,7 +32,7 @@ func test_shoving_a_lab_dummy_moves_it() -> void:
 	await step(10)
 	hero.set_verb_held(Hero.SLOT_FORCE, false)
 	await step(30)
-	check(dummy.global_position.z < start_z - 1.0, "dummy shoved away from hero")
+	check(dummy.global_position.z < start_z - 1.0, "dummy knocked back away from hero")
 
 func test_weight_pad_builds_weight() -> void:
 	await load_lab()
@@ -60,35 +60,35 @@ func test_state_ring_shows_dominant_state() -> void:
 	check(ring.visible, "ring visible with charge")
 	check(ring.current_color().b > ring.current_color().r, "charge ring is cyan")
 
-func test_device_force_action_shoves() -> void:
+func test_device_force_action_pulses() -> void:
 	await load_lab()
 	hero.use_device_input = true
-	var dummy: ShoveDummy = lab.get_node("Dummies/DummyCenter")
+	var dummy: TrainingDummy = lab.get_node("Dummies/DummyCenter")
 	hero.respawn_at(dummy.global_position + Vector3(0, 0, 1.0))
 	hero.facing = Vector2.UP   # face the dummy (-z)
 	var hits: Array = []
-	dummy.shoved.connect(func(inf: Influence) -> void: hits.append(inf))
+	dummy.knocked.connect(func(inf: Influence) -> void: hits.append(inf))
 	await step(2)
 	Input.action_press("force")
 	await step(10)
 	Input.action_release("force")
 	await step(2)
-	check(hits.size() == 1, "pressing the force action shoves via the device-input path")
+	check(hits.size() == 1, "pressing the force action pulses via the device-input path")
 
-func test_quick_tap_between_physics_frames_still_shoves() -> void:
+func test_quick_tap_between_physics_frames_still_pulses() -> void:
 	await load_lab()
 	hero.use_device_input = true
-	var dummy: ShoveDummy = lab.get_node("Dummies/DummyCenter")
+	var dummy: TrainingDummy = lab.get_node("Dummies/DummyCenter")
 	hero.respawn_at(dummy.global_position + Vector3(0, 0, 1.0))
 	hero.facing = Vector2.UP
 	var hits: Array = []
-	dummy.shoved.connect(func(inf: Influence) -> void: hits.append(inf))
+	dummy.knocked.connect(func(inf: Influence) -> void: hits.append(inf))
 	await step(2)
 	# a fast touch tap: down and up land before the hero's next physics poll
 	# (TouchScreenButton delivers InputEventActions exactly like this)
 	_tap("force")
 	await step(12)
-	check(hits.size() == 1, "a tap shorter than one physics frame still shoves")
+	check(hits.size() == 1, "a tap shorter than one physics frame still pulses")
 
 func test_quick_dash_tap_still_dashes() -> void:
 	await load_lab()

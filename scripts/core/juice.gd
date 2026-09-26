@@ -79,3 +79,26 @@ func burst(at: Vector3, color: Color, amount := 14) -> void:
 	particles.global_position = at
 	particles.emitting = true
 	get_tree().create_timer(1.0, true, false, true).timeout.connect(particles.queue_free)
+
+## Expanding flat energy ring (the Pulse's visible emission). Cosmetic only:
+## driven by a tween, frees itself when done.
+func wave(at: Vector3, radius: float, color: Color, duration := 0.2) -> void:
+	var parent: Node = get_tree().current_scene if get_tree().current_scene else get_tree().root
+	var torus := TorusMesh.new()
+	torus.inner_radius = 0.85
+	torus.outer_radius = 1.0
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = color
+	torus.material = mat
+	var ring := MeshInstance3D.new()
+	ring.mesh = torus
+	parent.add_child(ring)
+	ring.global_position = at
+	ring.scale = Vector3(0.2, 0.1, 0.2)
+	var t := ring.create_tween().set_parallel(true).set_ignore_time_scale(true)
+	t.tween_property(ring, "scale", Vector3(radius, 0.1, radius), duration) \
+		.set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	t.tween_property(mat, "albedo_color:a", 0.0, duration)
+	t.chain().tween_callback(ring.queue_free)

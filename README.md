@@ -18,14 +18,16 @@ The HP/sword prototype described below has been replaced by the
 transformation-combat core
 (spec: `../../docs/superpowers/specs/2026-09-26-concept-01-systems-design.md`,
 plan: `../../docs/superpowers/plans/2026-09-26-concept-01-step1-core-feel.md`).
-Main scene is `scenes/test/feel_lab.tscn`: the Warden, three shove dummies,
+Main scene is `scenes/test/feel_lab.tscn`: the Warden, three training dummies,
 a Weight pad (stone), a Charge pad (cyan), and a hazard (purple).
 
-- Keyboard: WASD move, Space/J shove, Shift dash, F3 state readout.
-- Touch: joystick, big orange button = shove, small blue = dash.
+- Keyboard: WASD move, Space/J pulse, Shift dash, F3 state readout.
+- Touch: joystick, big orange button = pulse, small blue = dash.
 - Tests: `dev/test.sh` (headless, all systems).
 
-The question this build answers: **does shoving feel good?**
+The question this build answers: **does the Pulse feel good?** (the Warden's Force verb: an emitted
+ring of restorative energy that knocks corruption back; Charger shots are
+"sparks")
 
 ## What this actually is (original 3D pipeline build, historical)
 

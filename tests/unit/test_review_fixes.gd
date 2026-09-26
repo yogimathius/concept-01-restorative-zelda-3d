@@ -2,7 +2,7 @@ extends TestCase
 ## Regression tests for the final-review findings on step 1.
 
 const HERO_SCENE: PackedScene = preload("res://scenes/hero/hero.tscn")
-const DUMMY_SCENE: PackedScene = preload("res://scenes/test_props/shove_dummy.tscn")
+const DUMMY_SCENE: PackedScene = preload("res://scenes/test_props/training_dummy.tscn")
 const WARDEN: HeroClass = preload("res://data/classes/warden.tres")
 
 class RecordingVerb extends Verb:
@@ -40,7 +40,7 @@ func test_attack_animation_plays_past_impact() -> void:
 	hero.set_verb_held(Hero.SLOT_FORCE, true)
 	await step(10)   # wind-up (0.12 s) has landed; verb no longer active
 	hero.set_verb_held(Hero.SLOT_FORCE, false)
-	check(not hero.force_verb.active, "shove has landed")
+	check(not hero.force_verb.active, "pulse has landed")
 	check(hero.anim_player.current_animation == &"attack", "attack clip still playing after impact")
 
 # --- finding 2: haptics need the Android VIBRATE permission ---
@@ -93,12 +93,12 @@ func test_rebuilding_verbs_clears_held_state() -> void:
 
 func test_held_when_rooted_then_released_does_not_stick() -> void:
 	spawn(WARDEN)
-	var dummy: ShoveDummy = DUMMY_SCENE.instantiate()
+	var dummy: TrainingDummy = DUMMY_SCENE.instantiate()
 	dummy.position = Vector3(0, 0.02, 1.0)
 	world.add_child(dummy)
 	await step(3)
 	var hits: Array = []
-	dummy.shoved.connect(func(inf: Influence) -> void: hits.append(inf))
+	dummy.knocked.connect(func(inf: Influence) -> void: hits.append(inf))
 	hero.set_verb_held(Hero.SLOT_FORCE, true)   # held first...
 	hero.gauge.add(&"weight", 100.0)            # ...then rooted
 	await step(3)
@@ -111,4 +111,4 @@ func test_held_when_rooted_then_released_does_not_stick() -> void:
 	hero.set_verb_held(Hero.SLOT_FORCE, true)
 	await step(10)
 	hero.set_verb_held(Hero.SLOT_FORCE, false)
-	check(hits.size() == 2, "first press after the root shoves")
+	check(hits.size() == 2, "first press after the root pulses")

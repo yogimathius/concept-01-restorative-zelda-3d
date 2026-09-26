@@ -1,9 +1,9 @@
-class_name ShoveDummy
+class_name TrainingDummy
 extends CharacterBody3D
-## Feel-lab target: slides when shoved, bounces off walls, and squashes and
-## flashes on hit, so the shove can be judged on its own.
+## Feel-lab target: slides when knocked back, bounces off walls, and squashes and
+## flashes on hit, so the pulse can be judged on its own.
 
-signal shoved(inf: Influence)
+signal knocked(inf: Influence)
 
 const TOON_MATERIAL: ShaderMaterial = preload("res://shaders/toon_outline_material.tres")
 
@@ -23,7 +23,7 @@ func receive_influence(inf: Influence) -> void:
 	if inf.kind != Influence.Kind.FORCE:
 		return
 	_slide += inf.direction * inf.amount * knockback_per_force
-	shoved.emit(inf)
+	knocked.emit(inf)
 	ToonUtil.flash(self, body_mesh, Color.WHITE, 0.1)
 	body_mesh.scale = Vector3(1.3, 0.7, 1.3)
 	var t := create_tween()

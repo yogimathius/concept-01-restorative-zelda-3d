@@ -6,8 +6,8 @@ extends RefCounted
 const MIX_RATE := 22050
 ## name -> [waveform ("sine" | "square" | "noise"), start_hz, end_hz, seconds, volume]
 const PRESETS := {
-	"shove_hit": ["square", 150.0, 45.0, 0.18, 0.7],
-	"shove_whiff": ["noise", 0.0, 0.0, 0.10, 0.25],
+	"pulse_hit": ["square", 150.0, 45.0, 0.18, 0.7],
+	"pulse_emit": ["sine", 180.0, 720.0, 0.16, 0.45],
 	"dash": ["noise", 0.0, 0.0, 0.12, 0.3],
 	"heart_lost": ["square", 440.0, 110.0, 0.35, 0.6],
 	"overload_root": ["sine", 90.0, 40.0, 0.5, 0.8],

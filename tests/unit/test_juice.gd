@@ -33,10 +33,10 @@ func test_shake_clamps_and_emits() -> void:
 	check_near(got[0], 1.0, 0.0001, "trauma clamped to 1")
 
 func test_sfx_synth_builds_and_caches_presets() -> void:
-	var s := SfxSynth.get_stream("shove_hit")
+	var s := SfxSynth.get_stream("pulse_hit")
 	check(s != null, "known preset builds")
 	check(s.data.size() == int(0.18 * SfxSynth.MIX_RATE) * 2, "16-bit mono sample count matches duration")
-	check(SfxSynth.get_stream("shove_hit") == s, "stream cached")
+	check(SfxSynth.get_stream("pulse_hit") == s, "stream cached")
 	check(SfxSynth.get_stream("nope") == null, "unknown preset is null")
 
 func test_overlapping_flashes_restore_original_color() -> void:
@@ -67,3 +67,15 @@ func test_camera_follows_target_and_shake_decays() -> void:
 	check_near(cam.trauma, 0.5, 0.001, "camera receives shake trauma")
 	await wait_ms(600)
 	check(cam.trauma < 0.1, "trauma decays")
+
+func test_wave_spawns_expanding_ring_that_cleans_up() -> void:
+	var before := tree.root.get_child_count()
+	Juice.wave(Vector3(1, 0, 2), 1.5, Color(0.4, 1.0, 0.9), 0.15)
+	var ring: MeshInstance3D = tree.root.get_child(tree.root.get_child_count() - 1)
+	check(tree.root.get_child_count() == before + 1, "wave adds one ring")
+	check_near(ring.global_position.x, 1.0, 0.001, "ring centred on emitter")
+	var start_scale := ring.scale.x
+	await wait_ms(80)
+	check(is_instance_valid(ring) and ring.scale.x > start_scale, "ring expands")
+	await wait_ms(400)
+	check(not is_instance_valid(ring), "ring frees itself after the wave")
