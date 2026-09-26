@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="9_hud"]
 [ext_resource type="PackedScene" path="res://scenes/hud/touch_controls.tscn" id="10_touch"]
 [ext_resource type="Script" path="res://scripts/test_props/lab_dressing.gd" id="11_dressing"]
+[ext_resource type="Script" path="res://scripts/vfx/ambient_motes.gd" id="12_motes"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ground"]
 size = Vector3(24, 0.2, 24)
@@ -138,3 +139,35 @@ script = ExtResource("11_dressing")
 hero_path = NodePath("../Hero")
 
 [node name="TouchControls" parent="." instance=ExtResource("10_touch")]
+
+[node name="CorruptionMotes" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
+script = ExtResource("12_motes")
+size = Vector3(11, 1.5, 22)
+color = Color(0.7, 0.36, 0.88, 1)
+amount = 40
+rise = 0.35
+lifetime = 5.0
+
+[node name="Fireflies" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.3, 0)
+script = ExtResource("12_motes")
+size = Vector3(11, 1.2, 22)
+color = Color(1, 0.78, 0.35, 1)
+amount = 28
+rise = 0.12
+wander = 0.6
+lifetime = 6.0
+speck_size = 0.04
+glow = 2.2
+
+[node name="PoolBubbles" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 8)
+script = ExtResource("12_motes")
+size = Vector3(3.6, 0.2, 1.6)
+color = Color(0.72, 0.36, 0.9, 1)
+amount = 16
+rise = 0.5
+lifetime = 1.6
+speck_size = 0.035
+glow = 2.0

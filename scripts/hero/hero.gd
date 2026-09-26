@@ -143,6 +143,7 @@ func request_dash() -> void:
 	_dash_cooldown_left = dash_time + dash_cooldown
 	dash_iframes = true
 	Juice.sfx("dash")
+	Juice.burst(global_position + Vector3.UP * 0.2, Color(0.85, 0.9, 1.0), 8)
 	dashed.emit()
 
 func find_influenceables(radius: float) -> Array[Node3D]:
@@ -314,11 +315,13 @@ func _on_overloaded(_id: StringName, def: StateDefinition) -> void:
 		StateDefinition.Overload.ROOT:
 			rooted_left = def.overload_duration
 			Juice.sfx("overload_root")
+			Juice.burst(global_position + Vector3.UP * 0.1, Color(0.62, 0.55, 0.45), 22)
 		StateDefinition.Overload.SURGE:
 			var heading := Vector3(_move_velocity.x, 0.0, _move_velocity.z)
 			_dash_dir = heading.normalized() if heading.length() > 0.2 else facing_3d()
 			surge_left = def.overload_duration
 			Juice.sfx("overload_surge")
+			Juice.burst(global_position + Vector3.UP * 0.5, Color(0.3, 0.95, 1.0), 22)
 	Juice.shake(0.5)
 	overload_started.emit(def.id)
 	lose_heart(&"overload")
