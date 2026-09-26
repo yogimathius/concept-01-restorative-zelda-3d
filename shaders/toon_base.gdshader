@@ -3,9 +3,12 @@ render_mode diffuse_toon, specular_disabled, cull_disabled;
 
 uniform vec4 base_color : source_color = vec4(0.6, 0.6, 0.6, 1.0);
 uniform sampler2D ramp_texture : filter_nearest;
+uniform vec4 emission_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform float emission_energy = 0.0;
 
 void fragment() {
 	ALBEDO = base_color.rgb;
+	EMISSION = emission_color.rgb * emission_energy;
 }
 
 void light() {
