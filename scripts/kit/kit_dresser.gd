@@ -12,6 +12,12 @@ func place(family: String, node_name: String, at: Vector3, yaw_deg := 0.0, scale
 	var basis := Basis(Vector3.UP, deg_to_rad(yaw_deg)).scaled(Vector3.ONE * scale)
 	_batches[key].append(Transform3D(basis, at))
 
+func place_xform(family: String, node_name: String, xform: Transform3D) -> void:
+	var key := family + "/" + node_name
+	if not _batches.has(key):
+		_batches[key] = []
+	_batches[key].append(xform)
+
 func build() -> void:
 	for child in get_children():
 		if child is MultiMeshInstance3D:

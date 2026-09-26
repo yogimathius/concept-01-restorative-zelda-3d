@@ -6,6 +6,8 @@ extends Area3D
 
 @export var size := Vector3(2.0, 1.0, 2.0)
 @export var show_visual := true
+## Shift the volume vertically (chasms reach below ground to catch falls).
+@export var y_offset := 0.0
 @export var color := Color(0.28, 0.08, 0.34)
 
 func _ready() -> void:
@@ -14,7 +16,7 @@ func _ready() -> void:
 	box.size = size
 	var shape := CollisionShape3D.new()
 	shape.shape = box
-	shape.position.y = size.y * 0.5
+	shape.position.y = size.y * 0.5 + y_offset
 	add_child(shape)
 	if show_visual:
 		var plane := PlaneMesh.new()
@@ -35,4 +37,5 @@ func _on_body_entered(body: Node3D) -> void:
 func contains_point(point: Vector3, margin := 0.0) -> bool:
 	var local := to_local(point)
 	var half := size * 0.5
-	return absf(local.x) <= half.x + margin and absf(local.z) <= half.z + margin
+	var in_height := local.y >= y_offset - 0.1 and local.y <= y_offset + size.y + 0.1
+	return in_height and absf(local.x) <= half.x + margin and absf(local.z) <= half.z + margin

@@ -32,5 +32,5 @@ func _process(_delta: float) -> void:
 			status = "  ROOTED"
 		elif _hero.surge_left > 0.0:
 			status = "  SURGE"
-		debug_label.text = "weight %3d   charge %3d%s" % [
-			_hero.gauge.value(&"weight"), _hero.gauge.value(&"charge"), status]
+		debug_label.text = "weight %3d   charge %3d%s   %d fps" % [
+			_hero.gauge.value(&"weight"), _hero.gauge.value(&"charge"), status, Engine.get_frames_per_second()]

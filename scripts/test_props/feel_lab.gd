@@ -31,6 +31,8 @@ func _on_failed() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("debug_swap_class"):
 		swap_class()
+	elif event.is_action_pressed("debug_switch_scene"):
+		get_tree().change_scene_to_file("res://scenes/levels/region1.tscn")
 
 ## F1: flip between the Warden and the Weaver (debug; class select comes later).
 func swap_class() -> void:

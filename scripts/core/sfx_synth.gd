@@ -13,6 +13,7 @@ const PRESETS := {
 	"overload_root": ["sine", 90.0, 40.0, 0.5, 0.8],
 	"overload_surge": ["square", 300.0, 900.0, 0.3, 0.5],
 	"hazard": ["noise", 0.0, 0.0, 0.4, 0.5],
+	"restore": ["sine", 440.0, 990.0, 0.6, 0.5],
 }
 
 static var _cache: Dictionary = {}

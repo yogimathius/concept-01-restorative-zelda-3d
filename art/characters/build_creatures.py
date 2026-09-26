@@ -51,9 +51,11 @@ BEARER_RIG = {
 
 def build_bearer(body):
     add = body.add
-    add(box((0, 0, 0.5), (0.8, 1.0, 0.48), bevel=0.06, jitter=0.05, rng=r("b-torso")), m("chalk_dark"), "body")
+    add(box((0, 0, 0.5), (0.8, 1.0, 0.48), bevel=0.06, jitter=0.05, rng=r("b-torso")), m("chalk"), "body")
+    for side in (1, -1):
+        add(box((0.41 * side, -0.05, 0.55), (0.02, 0.6, 0.05)), m("violet_glow", 1.8), "body")
     add(box((0, 0.05, 0.3), (0.7, 0.9, 0.12), jitter=0.03, rng=r("b-belly")), m("charcoal"), "body")
-    add(box((0, -0.55, 0.44), (0.42, 0.34, 0.3), bevel=0.05, jitter=0.03, rng=r("b-head")), m("violet"), "head")
+    add(box((0, -0.55, 0.44), (0.42, 0.34, 0.3), bevel=0.05, jitter=0.03, rng=r("b-head")), m("chalk_dark"), "head")
     add(box((0, -0.7, 0.38), (0.3, 0.1, 0.12), bevel=0.02), m("charcoal"), "head")
     for side in (1, -1):
         add(box((0.11 * side, -0.72, 0.5), (0.06, 0.02, 0.04)), m("violet_glow", 2.4), "head")
@@ -145,7 +147,7 @@ def _limb(p0, p1, width):
 
 def build_charger(body, restored):
     add = body.add
-    shell = m("ivory") if restored else m("charcoal")
+    shell = m("ivory") if restored else m("chalk")
     trim = m("gold", 1.4) if restored else m("violet")
     add(box((0, 0, 0.42), (0.34, 0.3, 0.24), bevel=0.05, jitter=0.0 if restored else 0.03, rng=r("c-base")), shell, "base")
     add(box((0, 0, 0.66), (0.14, 0.14, 0.34), bevel=0.02), trim, "neck")
@@ -160,7 +162,7 @@ def build_charger(body, restored):
     for leg, (a, b) in (("leg.F", ((0, -0.1, 0.34), (0, -0.28, 0.0))),
                         ("leg.BL", ((0.12, 0.08, 0.34), (0.26, 0.2, 0.0))),
                         ("leg.BR", ((-0.12, 0.08, 0.34), (-0.26, 0.2, 0.0)))):
-        add(_limb(a, b, 0.07), m("ivory_shade") if restored else m("violet"), leg)
+        add(_limb(a, b, 0.07), m("ivory_shade") if restored else m("charcoal"), leg)
         add(box((b[0], b[1], 0.03), (0.1, 0.1, 0.06), bevel=0.02), shell, leg)
     if restored:
         add(box((0, 0, 0.12), (0.5, 0.5, 0.14), bevel=0.05), m("ivory_shade"), "base")

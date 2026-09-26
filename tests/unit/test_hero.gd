@@ -210,3 +210,13 @@ func test_dash_into_hazard_still_costs_heart() -> void:
 	await step(20)
 	check(hero.hearts == 4, "dash i-frames don't cover hazards")
 	check(hero.global_position.z < 2.0, "respawned before the hazard")
+
+func test_hazard_far_below_does_not_mark_ground_unsafe() -> void:
+	var hero := spawn_hero()
+	var kill := add_hazard(Vector3(0, -6, 0), Vector3(60, 1, 60))
+	check(not kill.contains_point(Vector3(3, 0, 3), 0.75), "a kill floor 6 m down doesn't contain ground-level points")
+	await step(5)
+	hero.respawn_at(Vector3(0, 0.02, 0))
+	hero.move_input = Vector2(1, 0)
+	await step(20)
+	check(hero.last_safe_position.x > 0.5, "safe position still tracks the hero above a kill floor")
