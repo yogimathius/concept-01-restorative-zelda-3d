@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="StateDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/core/state_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"charge"
+max_value = 100.0
+decay_delay = 1.0
+decay_rate = 20.0
+overload = 1
+overload_duration = 0.5
+modifiers_at_max = {
+"accel": 1.6,
+"dash_distance": 1.6,
+"friction": 0.35,
+"knockback_taken": 1.5,
+"move_speed": 1.45
+}

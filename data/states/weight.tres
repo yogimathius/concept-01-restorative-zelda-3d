@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StateDefinition" format=3]
+
+[ext_resource type="Script" path="res://scripts/core/state_definition.gd" id="1_def"]
+
+[resource]
+script = ExtResource("1_def")
+id = &"weight"
+max_value = 100.0
+decay_delay = 1.0
+decay_rate = 20.0
+overload = 0
+overload_duration = 1.2
+modifiers_at_max = {
+"accel": 0.5,
+"dash_distance": 0.5,
+"force_output": 1.6,
+"knockback_taken": 0.3,
+"move_speed": 0.55,
+"turn_rate": 0.4
+}
