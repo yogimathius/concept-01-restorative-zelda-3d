@@ -24,11 +24,13 @@ func hitstop(ms: int) -> void:
 		return
 	_hitstop_until_ms = maxi(_hitstop_until_ms, Time.get_ticks_msec() + ms)
 	Engine.time_scale = HITSTOP_SCALE
-	get_tree().create_timer(ms / 1000.0, true, false, true).timeout.connect(_on_hitstop_timer)
 
-func _on_hitstop_timer() -> void:
-	# only the timer for the longest pending hitstop restores time
-	if Time.get_ticks_msec() + 16 >= _hitstop_until_ms:
+func _process(_delta: float) -> void:
+	# Ended by the wall clock, not a SceneTreeTimer: timers count smoothed frame
+	# deltas, which drift from real time, and an early fire could never tell it
+	# was early, leaving the game stuck in slow motion.
+	if _hitstop_until_ms > 0 and Time.get_ticks_msec() >= _hitstop_until_ms:
+		_hitstop_until_ms = 0
 		Engine.time_scale = 1.0
 
 func is_hitstopped() -> bool:
