@@ -21,7 +21,7 @@ plan: `../../docs/superpowers/plans/2026-09-26-concept-01-step1-core-feel.md`).
 Main scene is `scenes/test/feel_lab.tscn`: the Warden, three training dummies,
 a Weight pad (stone), a Charge pad (cyan), and a hazard (purple).
 
-- Keyboard: WASD move, Space/J pulse, Shift dash, F3 state readout.
+- Keyboard: WASD move, Space/J pulse, Shift dash, F1 swap Warden/Weaver, F3 state readout.
 - Touch: joystick, big orange button = pulse, small blue = dash.
 - Tests: `dev/test.sh` (headless, all systems).
 

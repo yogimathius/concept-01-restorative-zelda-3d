@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/hero/verbs/warden_pulse.gd" id="1_pulse"]
+
+[node name="WeaverPulse" type="Node"]
+script = ExtResource("1_pulse")
+cooldown = 0.3
+reach = 1.1
+strength = 3.0
+hitstop_ms = 40

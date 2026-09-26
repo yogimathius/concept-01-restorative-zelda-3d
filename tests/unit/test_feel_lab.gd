@@ -123,3 +123,11 @@ func test_dummies_are_kit_training_posts() -> void:
 	var post := lab.get_node("Dummies/DummyCenter").find_child("*", true, false)
 	var pieces := lab.get_node("Dummies/DummyCenter").find_children("*", "KitPiece", true, false)
 	check(pieces.size() == 1 and pieces[0].shape == "training_post", "dummy wears the training post")
+
+func test_swap_class_toggles_warden_and_weaver() -> void:
+	await load_lab()
+	lab.swap_class()
+	check(hero.hero_class.display_name == "Weaver", "F1 swaps to the Weaver")
+	check(hero.force_verb != null and hero.force_verb.strength < 8.0, "Weaver gets the weak Pulse")
+	lab.swap_class()
+	check(hero.hero_class.display_name == "Warden", "and back to the Warden")

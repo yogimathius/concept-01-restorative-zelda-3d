@@ -3,6 +3,11 @@ extends Node3D
 ## hearts to overload and the hazard, fail and retry. Failure handling here
 ## is a stand-in for CheckpointDirector (build step 6).
 
+const CLASSES: Array[HeroClass] = [
+	preload("res://data/classes/warden.tres"),
+	preload("res://data/classes/weaver.tres"),
+]
+
 @onready var hero: Hero = $Hero
 @onready var dummies_root: Node3D = $Dummies
 
@@ -22,3 +27,12 @@ func _on_failed() -> void:
 	for dummy in _dummy_starts:
 		dummy.global_position = _dummy_starts[dummy]
 		dummy.stop()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug_swap_class"):
+		swap_class()
+
+## F1: flip between the Warden and the Weaver (debug; class select comes later).
+func swap_class() -> void:
+	var next := CLASSES[(CLASSES.find(hero.hero_class) + 1) % CLASSES.size()]
+	hero.apply_class(next)
