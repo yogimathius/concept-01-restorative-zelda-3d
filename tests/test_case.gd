@@ -12,10 +12,14 @@ func before_each() -> void:
 	world = Node3D.new()
 	world.name = "TestWorld"
 	tree.root.add_child(world)
+	# global time scaling would skew physics timing in tests. Looked up at
+	# runtime: autoload names aren't resolvable when run_all.gd compiles this.
+	tree.root.get_node("Juice").hitstop_enabled = false
 
 func after_each() -> void:
 	if is_instance_valid(world):
 		world.queue_free()
+	tree.root.get_node("Juice").hitstop_enabled = true
 	Engine.time_scale = 1.0
 	await tree.process_frame
 

@@ -73,3 +73,4 @@ enabled=PackedStringArray("res://addons/virtual_joystick/plugin.cfg")
 [autoload]
 
 GameEvents="*res://scripts/game_events.gd"
+Juice="*res://scripts/core/juice.gd"
