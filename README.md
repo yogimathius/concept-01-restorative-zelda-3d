@@ -12,7 +12,22 @@ this repo.
 Spec: `docs/superpowers/specs/2026-09-20-concept-01-3d-art-pipeline-design.md`
 Plan: `docs/superpowers/plans/2026-09-20-concept-01-3d-art-pipeline.md`
 
-## What this actually is
+## Current state: step 1 feel lab (2026-09-26)
+
+The HP/sword prototype described below has been replaced by the
+transformation-combat core
+(spec: `../../docs/superpowers/specs/2026-09-26-concept-01-systems-design.md`,
+plan: `../../docs/superpowers/plans/2026-09-26-concept-01-step1-core-feel.md`).
+Main scene is `scenes/test/feel_lab.tscn`: the Warden, three shove dummies,
+a Weight pad (stone), a Charge pad (cyan), and a hazard (purple).
+
+- Keyboard: WASD move, Space/J shove, Shift dash, F3 state readout.
+- Touch: joystick, big orange button = shove, small blue = dash.
+- Tests: `dev/test.sh` (headless, all systems).
+
+The question this build answers: **does shoving feel good?**
+
+## What this actually is (original 3D pipeline build, historical)
 
 A from-scratch Godot 3D project (not a fork of `../concept-01-restorative-zelda/`,
 whose 2D template and proven mobile pipeline stay untouched):

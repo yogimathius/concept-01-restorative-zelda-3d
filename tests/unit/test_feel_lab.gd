@@ -59,3 +59,50 @@ func test_state_ring_shows_dominant_state() -> void:
 	await wait_ms(50)
 	check(ring.visible, "ring visible with charge")
 	check(ring.current_color().b > ring.current_color().r, "charge ring is cyan")
+
+func test_device_force_action_shoves() -> void:
+	await load_lab()
+	hero.use_device_input = true
+	var dummy: ShoveDummy = lab.get_node("Dummies/DummyCenter")
+	hero.respawn_at(dummy.global_position + Vector3(0, 0, 1.0))
+	hero.facing = Vector2.UP   # face the dummy (-z)
+	var hits: Array = []
+	dummy.shoved.connect(func(inf: Influence) -> void: hits.append(inf))
+	await step(2)
+	Input.action_press("force")
+	await step(10)
+	Input.action_release("force")
+	await step(2)
+	check(hits.size() == 1, "pressing the force action shoves via the device-input path")
+
+func test_quick_tap_between_physics_frames_still_shoves() -> void:
+	await load_lab()
+	hero.use_device_input = true
+	var dummy: ShoveDummy = lab.get_node("Dummies/DummyCenter")
+	hero.respawn_at(dummy.global_position + Vector3(0, 0, 1.0))
+	hero.facing = Vector2.UP
+	var hits: Array = []
+	dummy.shoved.connect(func(inf: Influence) -> void: hits.append(inf))
+	await step(2)
+	# a fast touch tap: down and up land before the hero's next physics poll
+	# (TouchScreenButton delivers InputEventActions exactly like this)
+	_tap("force")
+	await step(12)
+	check(hits.size() == 1, "a tap shorter than one physics frame still shoves")
+
+func test_quick_dash_tap_still_dashes() -> void:
+	await load_lab()
+	hero.use_device_input = true
+	var count := [0]
+	hero.dashed.connect(func() -> void: count[0] += 1)
+	await step(2)
+	_tap("dash")
+	await step(3)
+	check(count[0] == 1, "a dash tap shorter than one physics frame still dashes")
+
+func _tap(action: String) -> void:
+	for pressed in [true, false]:
+		var ev := InputEventAction.new()
+		ev.action = action
+		ev.pressed = pressed
+		Input.parse_input_event(ev)

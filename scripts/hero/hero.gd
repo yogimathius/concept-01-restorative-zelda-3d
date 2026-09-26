@@ -219,8 +219,16 @@ func _read_device_input() -> void:
 	move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if Input.is_action_just_pressed("dash"):
 		request_dash()
-	set_verb_held(SLOT_FORCE, Input.is_action_pressed("force"))
-	set_verb_held(SLOT_RESTORE, Input.is_action_pressed("restore"))
+	_poll_verb(SLOT_FORCE, "force")
+	_poll_verb(SLOT_RESTORE, "restore")
+
+func _poll_verb(slot: StringName, action: StringName) -> void:
+	var down := Input.is_action_pressed(action)
+	if Input.is_action_just_pressed(action) and not down:
+		# tapped and released between physics polls (fast touch taps do
+		# this): deliver the press so the tap isn't lost
+		set_verb_held(slot, true)
+	set_verb_held(slot, down)
 
 func _tick_verbs(delta: float) -> void:
 	for slot in _held:
