@@ -3,3 +3,4 @@ builds/
 *.blend1
 art/kit.blend
 art/heroes/*.blend
+art/creatures/*.blend

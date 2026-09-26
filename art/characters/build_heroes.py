@@ -17,18 +17,10 @@ import sys
 import bpy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "kit"))
-from kitlib import PALETTE, blob, box, material, prism_arc, transform  # noqa: E402
+sys.path.insert(0, HERE)
+from charlib import Body, export, m, make_armature, pose_keys, setup_scene  # noqa: E402
+from kitlib import blob, box, prism_arc, transform  # noqa: E402
 from mathutils import Matrix  # noqa: E402
-
-PALETTE.update({
-    "suit": "#1F4F57",
-    "robe": "#2E8A8C",
-    "robe_dark": "#1E5A60",
-    "hood": "#236E73",
-})
-
-FPS = 30
 
 
 def args():
@@ -56,63 +48,6 @@ def rig_layout(shoulder_x):
         "thigh.R": ((-0.09, 0, 0.48), (-0.09, 0, 0.26), "hips"),
         "shin.R": ((-0.09, 0, 0.26), (-0.09, 0, 0.03), "thigh.R"),
     }
-
-
-def make_armature(name, layout):
-    arm = bpy.data.armatures.new(name + "_rig")
-    rig = bpy.data.objects.new(name + "_rig", arm)
-    bpy.context.scene.collection.objects.link(rig)
-    bpy.context.view_layer.objects.active = rig
-    bpy.ops.object.mode_set(mode="EDIT")
-    for bone, (head, tail, parent) in layout.items():
-        eb = arm.edit_bones.new(bone)
-        eb.head, eb.tail = head, tail
-        eb.roll = 0.0
-        if parent:
-            eb.parent = arm.edit_bones[parent]
-            eb.use_connect = False
-    bpy.ops.object.mode_set(mode="OBJECT")
-    for pb in rig.pose.bones:
-        pb.rotation_mode = "XYZ"
-    return rig
-
-
-class Body:
-    """Parts, each with one material and rigidly bound to one bone."""
-
-    def __init__(self, name):
-        self.name = name
-        self.parts = []
-
-    def add(self, bm, mat, bone):
-        mesh = bpy.data.meshes.new(f"{self.name}_part")
-        bm.to_mesh(mesh)
-        bm.free()
-        mesh.materials.append(mat)
-        obj = bpy.data.objects.new(f"{self.name}_part", mesh)
-        bpy.context.scene.collection.objects.link(obj)
-        vg = obj.vertex_groups.new(name=bone)
-        vg.add(list(range(len(mesh.vertices))), 1.0, "REPLACE")
-        self.parts.append(obj)
-
-    def finish(self, rig):
-        for o in bpy.context.scene.objects:
-            o.select_set(False)
-        for o in self.parts:
-            o.select_set(True)
-        bpy.context.view_layer.objects.active = self.parts[0]
-        bpy.ops.object.join()
-        body = bpy.context.view_layer.objects.active
-        body.name = self.name
-        body.data.name = self.name
-        body.parent = rig
-        mod = body.modifiers.new("rig", "ARMATURE")
-        mod.object = rig
-        return body
-
-
-def m(name, glow=0.0):
-    return material(name, glow)
 
 
 # --- Warden: stocky, ivory plate over a deep-teal suit, glowing visor ---------
@@ -182,29 +117,6 @@ def _r(*keys):
 
 # --- animation ---------------------------------------------------------------------
 
-def pose_keys(rig, action_name, keys, frame_end):
-    """keys: {frame: {bone: (rx_deg, ry_deg, rz_deg) | ('loc', y)}}"""
-    rig.animation_data_create()
-    action = bpy.data.actions.new(action_name)
-    action.use_fake_user = True
-    rig.animation_data.action = action
-    for frame in sorted(keys):
-        for pb in rig.pose.bones:
-            pb.rotation_euler = (0, 0, 0)
-            pb.location = (0, 0, 0)
-        for bone, value in keys[frame].items():
-            pb = rig.pose.bones[bone]
-            if value[0] == "loc":
-                pb.location = (0, value[1], 0)
-            else:
-                pb.rotation_euler = tuple(math.radians(v) for v in value)
-        for pb in rig.pose.bones:
-            pb.keyframe_insert("rotation_euler", frame=frame)
-            pb.keyframe_insert("location", frame=frame)
-    action.frame_range = (0, frame_end)
-    return action
-
-
 def animate(rig, heavy):
     arm_swing = 22 if heavy else 30
     leg = 32 if heavy else 26
@@ -243,40 +155,6 @@ def animate(rig, heavy):
 
 # --- build / export / preview -----------------------------------------------------------
 
-def setup_scene():
-    bpy.ops.wm.read_factory_settings(use_empty=True)
-    import kitlib
-    kitlib._materials.clear()   # the reset above deleted them
-    scene = bpy.context.scene
-    scene.render.fps = FPS
-    scene.render.engine = "BLENDER_EEVEE"
-    world = bpy.data.worlds.new("sky")
-    world.use_nodes = True
-    world.node_tree.nodes["Background"].inputs["Color"].default_value = (0.05, 0.045, 0.08, 1)
-    scene.world = world
-    cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
-    cam.data.type = "ORTHO"
-    cam.data.ortho_scale = 1.6
-    scene.collection.objects.link(cam)
-    scene.camera = cam
-    sun = bpy.data.objects.new("key", bpy.data.lights.new("key", "SUN"))
-    sun.data.energy = 3.5
-    sun.rotation_euler = (math.radians(50), math.radians(10), math.radians(-35))
-    scene.collection.objects.link(sun)
-    scene.render.resolution_x, scene.render.resolution_y = 600, 600
-
-
-def export(rig, body, path):
-    for o in bpy.context.scene.objects:
-        o.select_set(False)
-    rig.select_set(True)
-    body.select_set(True)
-    bpy.context.view_layer.objects.active = rig
-    bpy.ops.export_scene.gltf(filepath=path, use_selection=True, export_animations=True,
-                              export_animation_mode="ACTIONS", export_skins=True,
-                              export_yup=True, export_materials="EXPORT")
-
-
 def preview(rig, name, out_dir):
     scene = bpy.context.scene
     cam = scene.camera
@@ -305,7 +183,7 @@ def main():
         builder(body)
         mesh_obj = body.finish(rig)
         animate(rig, heavy)
-        export(rig, mesh_obj, os.path.join(a.out, f"{name}.glb"))
+        export([rig, mesh_obj], os.path.join(a.out, f"{name}.glb"))
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(os.path.abspath(a.preview), f"{name}.blend"))
         preview(rig, name, a.preview)
         print(f"HERO built {name}: {len(mesh_obj.data.polygons)} faces")
