@@ -15,13 +15,24 @@ PALETTE.update({
     "robe": "#2E8A8C",
     "robe_dark": "#1E5A60",
     "hood": "#236E73",
+    "cloak": "#28495A",
+    "armor": "#BCC0AC",
+    "porcelain": "#D7D6C7", "metal_gold": "#B68D4F", "metal_bronze": "#846F53",
+    "cloth_indigo": "#293D63", "cloth_midnight": "#182D42", "cloth_teal": "#346E77",
+    "cloth_linen": "#ADA895", "skin": "#B77F5D", "skin_shadow": "#8F5947",
+    "hair": "#28272C", "lip": "#713E3C", "eye_white": "#D4D8D1", "iris": "#3C898B",
+    "ink": "#20252A", "leather": "#685141", "leather_dark": "#3D3533",
 })
 
 FPS = 30
 
 
 def m(name, glow=0.0):
-    return material(name, glow)
+    mat = material(name, glow)
+    bsdf = mat.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs["Metallic"].default_value = .72 if name.startswith("metal_") else 0
+    bsdf.inputs["Roughness"].default_value = .35 if name.startswith("metal_") else .78
+    return mat
 
 
 def make_armature(name, layout):
@@ -34,6 +45,8 @@ def make_armature(name, layout):
         eb = arm.edit_bones.new(bone)
         eb.head, eb.tail = head, tail
         eb.roll = 0.0
+    for bone, (_, _, parent) in layout.items():
+        eb = arm.edit_bones[bone]
         if parent:
             eb.parent = arm.edit_bones[parent]
             eb.use_connect = False
@@ -44,7 +57,7 @@ def make_armature(name, layout):
 
 
 class Body:
-    """Parts, each with one material and rigidly bound to one bone."""
+    """Authored parts with rigid armour bindings or blended soft-surface weights."""
 
     def __init__(self, name):
         self.name = name
@@ -57,8 +70,18 @@ class Body:
         mesh.materials.append(mat)
         obj = bpy.data.objects.new(f"{self.name}_part", mesh)
         bpy.context.scene.collection.objects.link(obj)
-        vg = obj.vertex_groups.new(name=bone)
-        vg.add(list(range(len(mesh.vertices))), 1.0, "REPLACE")
+        if callable(bone):
+            groups={}
+            for vertex in mesh.vertices:
+                weights=bone(vertex.co)
+                total=sum(weights.values())
+                for name,weight in weights.items():
+                    if weight<=0.0001: continue
+                    if name not in groups: groups[name]=obj.vertex_groups.new(name=name)
+                    groups[name].add([vertex.index],weight/total,"REPLACE")
+        else:
+            vg = obj.vertex_groups.new(name=bone)
+            vg.add(list(range(len(mesh.vertices))), 1.0, "REPLACE")
         self.parts.append(obj)
 
     def finish(self, rig):
@@ -90,7 +113,10 @@ def pose_keys(rig, action_name, keys, frame_end):
             pb.scale = (1, 1, 1)
         for bone, value in keys[frame].items():
             pb = rig.pose.bones[bone]
-            if value[0] == "loc":
+            if isinstance(value,dict):
+                pb.rotation_euler=tuple(math.radians(v) for v in value.get("rot",(0,0,0)))
+                pb.location=value.get("loc",(0,0,0))
+            elif value[0] == "loc":
                 pb.location = (0, value[1], 0)
             elif value[0] == "scale":
                 pb.scale = (value[1],) * 3
@@ -117,7 +143,7 @@ def setup_scene():
     scene.world = world
     cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
     cam.data.type = "ORTHO"
-    cam.data.ortho_scale = 1.6
+    cam.data.ortho_scale = 1.8
     scene.collection.objects.link(cam)
     scene.camera = cam
     sun = bpy.data.objects.new("key", bpy.data.lights.new("key", "SUN"))
@@ -127,14 +153,13 @@ def setup_scene():
     scene.render.resolution_x, scene.render.resolution_y = 600, 600
 
 
-def export(objs, path, animated=True):
+def export(objs, path, animated=True, surface_colors=False):
     for o in bpy.context.scene.objects:
         o.select_set(False)
     for o in objs:
         o.select_set(True)
     bpy.context.view_layer.objects.active = objs[0]
+    colour_options={"export_vertex_color":"ACTIVE","export_all_vertex_colors":False} if surface_colors else {}
     bpy.ops.export_scene.gltf(filepath=path, use_selection=True, export_animations=animated,
                               export_animation_mode="ACTIONS", export_skins=True,
-                              export_yup=True, export_materials="EXPORT")
-
-
+                              export_yup=True, export_materials="EXPORT", **colour_options)

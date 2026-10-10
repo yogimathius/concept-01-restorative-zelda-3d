@@ -11,12 +11,12 @@
 
 [sub_resource type="Environment" id="Environment_dusk"]
 background_mode = 1
-background_color = Color(0.09, 0.08, 0.13, 1)
+background_color = Color(0.10, 0.17, 0.22, 1)
 ambient_light_source = 2
-ambient_light_color = Color(0.42, 0.39, 0.55, 1)
-ambient_light_energy = 0.3
+ambient_light_color = Color(0.56, 0.65, 0.77, 1)
+ambient_light_energy = 0.42
 tonemap_mode = 2
-tonemap_exposure = 0.95
+tonemap_exposure = 0.85
 glow_enabled = true
 glow_intensity = 0.55
 glow_bloom = 0.0
@@ -40,12 +40,16 @@ size = 8.0
 script = ExtResource("2_camera")
 target_path = NodePath("../Hero")
 offset = Vector3(0, 8, 8)
+constrain_region = true
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.573576, -0.55667, 0.601254, 0, 0.734736, 0.678344, -0.819152, -0.389086, 0.421549, 0, 4, 0)
 light_color = Color(1, 0.92, 0.8, 1)
-light_energy = 1.0
+light_energy = 0.78
 shadow_enabled = true
+directional_shadow_max_distance = 38.0
+shadow_bias = 0.1
+shadow_normal_bias = 1.2
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_dusk")
@@ -55,20 +59,11 @@ hero_path = NodePath("../Hero")
 
 [node name="TouchControls" parent="." instance=ExtResource("10_touch")]
 
-[node name="Hint" type="Label" parent="."]
-offset_left = 16.0
-offset_top = 330.0
-offset_right = 420.0
-offset_bottom = 352.0
-theme_override_colors/font_outline_color = Color(0.05, 0.04, 0.08, 1)
-theme_override_constants/outline_size = 6
-text = "F1 class  ·  F2 restore next (preview)  ·  F4 feel lab"
-
 [node name="CorruptionMotes" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 12)
 script = ExtResource("12_motes")
 size = Vector3(32, 1.5, 24)
-color = Color(0.7, 0.36, 0.88, 1)
-amount = 60
+color = Color(0.57, 0.61, 0.87, 0.5)
+amount = 24
 rise = 0.35
 lifetime = 5.0

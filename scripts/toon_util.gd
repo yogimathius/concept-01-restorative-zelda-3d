@@ -25,6 +25,20 @@ static func toon_material(original: Material, template: ShaderMaterial) -> Shade
 	mat.set_shader_parameter("base_color", color)
 	mat.set_shader_parameter("emission_color", glow)
 	mat.set_shader_parameter("emission_energy", glow_energy)
+	if template.shader.resource_path.ends_with("hero_surface.gdshader") and original is BaseMaterial3D:
+		mat.set_shader_parameter("surface_metallic",original.metallic)
+		mat.set_shader_parameter("surface_roughness",original.roughness)
+		mat.set_shader_parameter("cloth_pattern",float(original.get_meta("cloth_pattern",0.0)))
+		mat.set_shader_parameter("cloth_width",float(original.get_meta("cloth_width",0.35)))
+		mat.set_shader_parameter("cloth_hem",float(original.get_meta("cloth_hem",0.20)))
+		mat.set_shader_parameter("cloth_top",float(original.get_meta("cloth_top",1.2165)))
+		mat.set_shader_parameter("embroidery_color",original.get_meta("embroidery_color",Color("b68d4f")))
+		mat.set_shader_parameter("fabric_strength",float(original.get_meta("fabric",1.0 if original.resource_name.begins_with("cloth_") else 0.0)))
+	if original is BaseMaterial3D and (not bool(original.get_meta("outline",true)) or original.resource_name in ["skin", "skin_shadow", "iris", "eye_white", "lip", "ink", "porcelain", "metal_gold", "metal_bronze"]):
+		mat.next_pass = null
+	if float(mat.get_shader_parameter("fabric_strength") if mat.get_shader_parameter("fabric_strength") != null else 0.0) > 0.0:
+		# The outline pass has no cloth deformation; omit it for moving fabric.
+		mat.next_pass = null
 	if mat.next_pass:
 		mat.next_pass = mat.next_pass.duplicate()
 	return mat

@@ -1,0 +1,4 @@
+[gd_scene format=3]
+[ext_resource type="Script" path="res://scripts/story/journey_start.gd" id="1"]
+[node name="JourneyStart" type="Node"]
+script = ExtResource("1")

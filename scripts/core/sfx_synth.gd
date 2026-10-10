@@ -6,6 +6,11 @@ extends RefCounted
 const MIX_RATE := 22050
 ## name -> [waveform ("sine" | "square" | "noise"), start_hz, end_hz, seconds, volume]
 const PRESETS := {
+	"mend": ["sine", 660.0, 880.0, 0.25, 0.2],
+	"refuse": ["sine", 180.0, 100.0, 0.2, 0.18],
+	"catch": ["sine", 400.0, 1100.0, 0.22, 0.3],
+	"spark": ["sine", 1000.0, 500.0, 0.16, 0.2],
+	"anchor": ["sine", 520.0, 1040.0, 0.5, 0.3],
 	"pulse_hit": ["square", 150.0, 45.0, 0.18, 0.7],
 	"pulse_emit": ["sine", 180.0, 720.0, 0.16, 0.45],
 	"dash": ["noise", 0.0, 0.0, 0.12, 0.3],

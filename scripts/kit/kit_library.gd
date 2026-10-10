@@ -22,7 +22,9 @@ static func mesh(family: String, node_name: String) -> Mesh:
 	if src and src.mesh:
 		out = src.mesh.duplicate()
 		for i in out.get_surface_count():
-			out.surface_set_material(i, ToonUtil.toon_material(src.get_active_material(i), TOON))
+			var material := ToonUtil.toon_material(src.get_active_material(i), TOON)
+			material.next_pass = null
+			out.surface_set_material(i, material)
 	root.free()
 	_meshes[key] = out
 	return out

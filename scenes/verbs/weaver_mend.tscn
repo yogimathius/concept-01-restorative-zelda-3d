@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/hero/verbs/mend.gd" id="1"]
+
+[node name="Mend" type="Node"]
+script = ExtResource("1")
+reach = 5.0
+rate = 1.4
+movement = 0.6
+aim_dot = 0.866

@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/region_scene.gd" id="1_scene"]
+[ext_resource type="Script" path="res://scripts/levels/region_builder.gd" id="2_builder"]
+[ext_resource type="Script" path="res://scripts/valley_camera.gd" id="2_camera"]
+[ext_resource type="PackedScene" path="res://scenes/hero/hero.tscn" id="4_hero"]
+[ext_resource type="Resource" path="res://data/classes/warden.tres" id="5_warden"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://scenes/hud/touch_controls.tscn" id="10_touch"]
+[ext_resource type="Script" path="res://scripts/vfx/ambient_motes.gd" id="12_motes"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ValleySkyMaterial"]
+sky_top_color = Color(0.11,0.27,0.38,1)
+sky_horizon_color = Color(0.55,0.68,0.68,1)
+ground_bottom_color = Color(0.16,0.26,0.29,1)
+ground_horizon_color = Color(0.55,0.68,0.68,1)
+
+[sub_resource type="Sky" id="ValleySky"]
+sky_material = SubResource("ValleySkyMaterial")
+
+[sub_resource type="Environment" id="Environment_dusk"]
+background_mode = 2
+sky = SubResource("ValleySky")
+background_color = Color(0.48, 0.64, 0.68, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.56, 0.65, 0.77, 1)
+ambient_light_energy = 0.65
+tonemap_mode = 2
+tonemap_exposure = 0.85
+glow_enabled = true
+glow_intensity = 0.55
+glow_bloom = 0.0
+glow_hdr_threshold = 1.2
+
+[node name="RiverValleyPreview" type="Node3D"]
+script = ExtResource("1_scene")
+save_path = "user://river-valley-preview.json"
+
+[node name="Builder" type="Node3D" parent="."]
+script = ExtResource("2_builder")
+valley_mode = true
+
+[node name="Hero" parent="." instance=ExtResource("4_hero")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.5, 0.02, 6.5)
+hero_class = ExtResource("5_warden")
+camera_relative = true
+floor_snap_length = 0.5
+floor_max_angle = 0.872665
+
+[node name="Camera3D" type="Node3D" parent="."]
+script = ExtResource("2_camera")
+target_path = NodePath("../Hero")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.573576, -0.55667, 0.601254, 0, 0.734736, 0.678344, -0.819152, -0.389086, 0.421549, 0, 4, 0)
+light_color = Color(1, 0.92, 0.8, 1)
+light_energy = 0.78
+shadow_enabled = true
+directional_shadow_max_distance = 38.0
+shadow_bias = 0.1
+shadow_normal_bias = 1.2
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_dusk")
+
+[node name="HUD" parent="." instance=ExtResource("9_hud")]
+hero_path = NodePath("../Hero")
+
+[node name="TouchControls" parent="." instance=ExtResource("10_touch")]
+
+[node name="CorruptionMotes" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 12)
+script = ExtResource("12_motes")
+size = Vector3(32, 1.5, 24)
+color = Color(0.57, 0.61, 0.87, 0.5)
+amount = 24
+rise = 0.35
+lifetime = 5.0

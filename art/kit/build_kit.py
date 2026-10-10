@@ -26,6 +26,7 @@ def args():
     ap.add_argument("--blend", required=True)
     ap.add_argument("--sheet", required=True)
     ap.add_argument("--only", default="")
+    ap.add_argument("--no-render", action="store_true")
     return ap.parse_args(argv)
 
 
@@ -126,9 +127,10 @@ def main():
         all_objs += objs
         print(f"KIT exported {name}: {[o.name for o in objs]}")
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(a.blend))
-    sheet(all_objs, os.path.abspath(a.sheet))
+    if not a.no_render:
+        sheet(all_objs, os.path.abspath(a.sheet))
     ring = [o for o in all_objs if o.name.startswith("spillway_ring")]
-    if ring:
+    if ring and not a.no_render:
         ring[1].location.x = 5.0
         render_view(os.path.abspath(a.sheet.replace(".png", "_ring.png")),
                     center=(2.5, 0, 6.5), ortho=14, res=(1600, 1000))
