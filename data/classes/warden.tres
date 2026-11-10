@@ -5,6 +5,8 @@
 [ext_resource type="PackedScene" path="res://scenes/verbs/warden_pulse.tscn" id="3_pulse"]
 [ext_resource type="Resource" path="res://data/states/warden_weight.tres" id="4_weight"]
 
+[ext_resource type="PackedScene" path="res://scenes/verbs/warden_mend.tscn" id="9_mend"]
+
 [resource]
 script = ExtResource("1_class")
 display_name = "Warden"
@@ -15,3 +17,4 @@ base_turn_rate = 14.0
 dash_distance = 3.5
 force_verb = ExtResource("3_pulse")
 state_overrides = [ExtResource("4_weight")]
+restore_verb = ExtResource("9_mend")

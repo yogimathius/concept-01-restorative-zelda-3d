@@ -101,11 +101,11 @@ func test_release_during_root_does_not_stick_verb() -> void:
 	await pulse()
 	check(hits.size() == 1, "first press after root pulses normally")
 
-func test_restore_with_no_restore_verb_is_noop() -> void:
+func test_restore_verb_is_available_and_releases() -> void:
 	spawn(Vector3(0, 0.02, 5.0))
 	await step(3)
-	check(hero.restore_verb == null, "Warden has no restore verb in step 1")
+	check(hero.restore_verb != null, "Warden can mend")
 	hero.set_verb_held(Hero.SLOT_RESTORE, true)
 	await step(3)
 	hero.set_verb_held(Hero.SLOT_RESTORE, false)
-	check(true, "no script error raised")   # dev/test.sh fails on SCRIPT ERROR
+	check(not hero.restore_verb.active, "mend stops on release")   # dev/test.sh fails on SCRIPT ERROR

@@ -3,28 +3,67 @@
 [ext_resource type="PackedScene" path="res://addons/virtual_joystick/virtual_joystick_scene.tscn" id="1_joystick"]
 [ext_resource type="Texture2D" path="res://addons/virtual_joystick/textures/joystick_tip.png" id="2_button_tex"]
 
+[ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="3_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/mend-medallion.png" id="4_mend"]
+[ext_resource type="Texture2D" path="res://assets/ui/glide-medallion.png" id="5_glide"]
+[ext_resource type="Texture2D" path="res://assets/ui/stick-base.svg" id="6_base"]
+[ext_resource type="Texture2D" path="res://assets/ui/stick-tip.svg" id="7_tip"]
+
 [node name="TouchControls" type="CanvasLayer"]
+script = ExtResource("3_script")
 
 [node name="Virtual Joystick" parent="." instance=ExtResource("1_joystick")]
+offset_left = 8.0
+offset_top = -164.0
+offset_right = 164.0
+offset_bottom = -8.0
+modulate = Color(1, 1, 1, 0.85)
+pressed_color = Color(1.2, 1.2, 1.2, 1)
+clampzone_size = 42.0
+deadzone_size = 6.0
 use_input_actions = true
 action_left = "move_left"
 action_right = "move_right"
 action_up = "move_up"
 action_down = "move_down"
-visibility_mode = 1
+visibility_mode = 0
 
 [node name="ForceButton" type="TouchScreenButton" parent="."]
-position = Vector2(556, 276)
-scale = Vector2(0.64, 0.64)
+position = Vector2(554, 264)
+scale = Vector2(0.52, 0.52)
 texture_normal = ExtResource("2_button_tex")
 action = "force"
-visibility_mode = 1
+visibility_mode = 0
 self_modulate = Color(1, 0.6, 0.35, 0.85)
 
 [node name="DashButton" type="TouchScreenButton" parent="."]
-position = Vector2(508, 306)
-scale = Vector2(0.4, 0.4)
-texture_normal = ExtResource("2_button_tex")
+position = Vector2(488, 300)
+scale = Vector2(0.36, 0.36)
+texture_normal = ExtResource("5_glide")
 action = "dash"
-visibility_mode = 1
-self_modulate = Color(0.75, 0.8, 1, 0.85)
+visibility_mode = 0
+
+[node name="RestoreButton" type="TouchScreenButton" parent="."]
+position = Vector2(494, 240)
+scale = Vector2(0.52, 0.52)
+texture_normal = ExtResource("4_mend")
+action = "restore"
+visibility_mode = 0
+
+[node name="Base" parent="Virtual Joystick" index="0"]
+offset_left = -56.0
+offset_top = -56.0
+offset_right = 56.0
+offset_bottom = 56.0
+pivot_offset = Vector2(56, 56)
+texture = ExtResource("6_base")
+
+[node name="Tip" parent="Virtual Joystick/Base" index="0"]
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+pivot_offset = Vector2(24, 24)
+texture = ExtResource("7_tip")
+
+[editable path="Virtual Joystick"]

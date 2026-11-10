@@ -1,6 +1,6 @@
 class_name Hero
 extends CharacterBody3D
-## The player character. Owns movement, dash, hearts and reactions to
+## The player character. Owns movement, Glide, resources and reactions to
 ## influences; abilities are Verb children supplied by the HeroClass. Device
 ## input is read only when use_device_input is true. Tests drive move_input,
 ## request_dash() and set_verb_held() directly.
@@ -8,14 +8,27 @@ extends CharacterBody3D
 signal hearts_changed(hearts: int, max_hearts: int)
 signal heart_lost(reason: StringName)
 signal failed
+signal unmoored
+var resources := WaykeeperResources.new()
+var learned_nodes := PackedStringArray()
+var _water_check_left := 0.0
+var _near_healthy_water := false
+var _near_linked_water := false
+signal consumable_changed
 signal dashed
 signal overload_started(id: StringName)
+var restoration_only := false
+var touch_only := false
+var equipped_gear: Dictionary = RestorationInventory.STARTERS.duplicate()
+var gear_speed_bonus := 0.0
+var tea_left := 0.0
+var cordial_left := 0.0
 
 const BASE_STATES := [
 	preload("res://data/states/weight.tres"),
 	preload("res://data/states/charge.tres"),
 ]
-const TOON_MATERIAL: ShaderMaterial = preload("res://shaders/toon_outline_material.tres")
+const TOON_MATERIAL: ShaderMaterial = preload("res://shaders/hero_surface_material.tres")
 const SLOT_FORCE := &"force"
 const SLOT_RESTORE := &"restore"
 
@@ -32,6 +45,7 @@ const SLOT_RESTORE := &"restore"
 @export var safe_hazard_margin: float = 0.75
 @export var safe_creature_distance: float = 2.0
 @export var use_device_input: bool = true
+@export var camera_relative := false
 
 var hearts: int = 0
 var facing := Vector2.DOWN   # x -> world x, y -> world z
@@ -50,6 +64,7 @@ var _knockback := Vector3.ZERO
 var _dash_left := 0.0
 var _dash_cooldown_left := 0.0
 var _dash_dir := Vector3.ZERO
+var _dash_flow_bonus := 1.0
 var _held := {SLOT_FORCE: false, SLOT_RESTORE: false}
 # a verb only receives held/released after it received pressed (see Verb)
 var _delivered := {SLOT_FORCE: false, SLOT_RESTORE: false}
@@ -61,6 +76,10 @@ var _delivered := {SLOT_FORCE: false, SLOT_RESTORE: false}
 func _ready() -> void:
 	add_to_group("hero")
 	add_to_group("influenceable")
+	resources.unmoored.connect(func():
+		_interrupt_verbs()
+		move_input = Vector2.ZERO
+		unmoored.emit())
 	gauge.overloaded.connect(_on_overloaded)
 	apply_class(hero_class)
 	hearts = max_hearts
@@ -88,6 +107,8 @@ func _rebuild_model() -> void:
 	visuals.add_child(model)
 	ToonUtil.apply_toon(model, TOON_MATERIAL)
 	anim_player = model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if anim_player: anim_player.playback_default_blend_time = 0.10
+	GearVisuals.apply(model, equipped_gear)
 
 func _rebuild_verbs() -> void:
 	for child in verbs_root.get_children():
@@ -108,11 +129,25 @@ func _make_verb(scene: PackedScene) -> Verb:
 
 # --- public API ---
 
+func apply_equipment(choices: Dictionary, speed_bonus: float) -> void:
+	equipped_gear = choices.duplicate()
+	gear_speed_bonus = speed_bonus
+	if visuals.get_child_count() > 0:
+		GearVisuals.apply(visuals.get_child(0), equipped_gear)
+
+
+func use_cup(id: String) -> bool:
+	if id == "bloom_tea" and tea_left <= 0: tea_left = 30.0
+	elif id == "reed_cordial" and cordial_left <= 0: cordial_left = 30.0
+	else: return false
+	consumable_changed.emit()
+	return true
+
 func facing_3d() -> Vector3:
 	return Vector3(facing.x, 0.0, facing.y)
 
 func is_controllable() -> bool:
-	return rooted_left <= 0.0 and surge_left <= 0.0
+	return (resources.stability > 0 if restoration_only else hearts > 0) and rooted_left <= 0.0 and surge_left <= 0.0
 
 func is_dashing() -> bool:
 	return _dash_left > 0.0
@@ -135,10 +170,12 @@ func set_verb_held(slot: StringName, held: bool) -> void:
 func request_dash() -> void:
 	if _dash_cooldown_left > 0.0 or is_dashing() or not is_controllable():
 		return
+	_interrupt_verbs()
 	var dir := Vector3(move_input.x, 0.0, move_input.y)
 	if dir.length() < 0.1:
 		dir = facing_3d()
 	_dash_dir = dir.normalized()
+	_dash_flow_bonus = 1.25 if restoration_only and _near_healthy_water and learned_nodes.has("current_rider") else 1.0
 	_dash_left = dash_time
 	_dash_cooldown_left = dash_time + dash_cooldown
 	dash_iframes = true
@@ -161,7 +198,18 @@ func play_anim(anim: StringName) -> void:
 	if anim_player and anim_player.has_animation(anim):
 		anim_player.play(anim)
 
+func lose_stability(amount: float) -> bool:
+	if not restoration_only: return false
+	var lost := resources.lose_stability(amount, gauge.normalized(&"weight"))
+	if lost:
+		Juice.shake(0.35)
+		Juice.haptic(80)
+		Juice.sfx("overload_root")
+		ToonUtil.flash(self, visuals, Color("ddbb81"), 0.2)
+	return lost
+
 func lose_heart(reason: StringName) -> bool:
+	if restoration_only: return lose_stability(20.0)
 	if hearts <= 0 or invulnerable_left > 0.0:
 		return false
 	hearts -= 1
@@ -209,8 +257,30 @@ func receive_influence(inf: Influence) -> void:
 # --- frame update ---
 
 func _physics_process(delta: float) -> void:
+	if (resources.stability <= 0 if restoration_only else hearts <= 0):
+		velocity = Vector3.ZERO
+		return
+	if restoration_only:
+		_water_check_left -= delta
+		if _water_check_left <= 0:
+			_water_check_left = 0.25
+			_near_healthy_water = false
+			_near_linked_water = false
+			for target in find_influenceables(5.0):
+				if target is RegionCreature and target.restored and (target.kind == "charger" or (target.ecology and target.ecology.states.cultivated)):
+					_near_healthy_water = true
+				if target is RegionCreature and target.restored and target.ecology and target.ecology.states.linked:
+					_near_healthy_water = true
+					_near_linked_water = true
+		var growth = get_parent().get("bloom_growth")
+		resources.tick(delta, _near_healthy_water, gauge.normalized(&"weight"), gauge.normalized(&"charge"),_near_linked_water,growth != null and growth.sheltered())
 	if use_device_input:
 		_read_device_input()
+	var tea_was_active := tea_left > 0
+	var cordial_was_active := cordial_left > 0
+	tea_left = maxf(0,tea_left-delta)
+	cordial_left = maxf(0,cordial_left-delta)
+	if (tea_was_active and tea_left == 0) or (cordial_was_active and cordial_left == 0): consumable_changed.emit()
 	invulnerable_left = maxf(0.0, invulnerable_left - delta)
 	_dash_cooldown_left = maxf(0.0, _dash_cooldown_left - delta)
 	_tick_verbs(delta)
@@ -224,15 +294,25 @@ func _physics_process(delta: float) -> void:
 	_update_animation()
 
 func _read_device_input() -> void:
+	if touch_only:
+		var controls := get_parent().get_node_or_null("TouchControls")
+		move_input = controls.get_node("Virtual Joystick").output if controls and controls.visible else Vector2.ZERO
+		if camera_relative:
+			move_input = get_parent().get_node("Camera3D").world_input(move_input)
+		return
 	move_input = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	if Input.is_action_just_pressed("dash"):
 		request_dash()
-	_poll_verb(SLOT_FORCE, "force")
+	if not restoration_only: _poll_verb(SLOT_FORCE, "force")
 	_poll_verb(SLOT_RESTORE, "restore")
 
 func _poll_verb(slot: StringName, action: StringName) -> void:
 	var down := Input.is_action_pressed(action)
-	if Input.is_action_just_pressed(action) and not down:
+	var just_pressed := Input.is_action_just_pressed(action)
+	if restoration_only and slot == SLOT_RESTORE:
+		down = down or Input.is_action_pressed("force")
+		just_pressed = just_pressed or Input.is_action_just_pressed("force")
+	if just_pressed and not down:
 		# tapped and released between physics polls (fast touch taps do
 		# this): deliver the press so the tap isn't lost
 		set_verb_held(slot, true)
@@ -260,7 +340,7 @@ func _locomotion(delta: float) -> Vector3:
 		if _dash_left <= 0.0:
 			dash_iframes = false
 			_move_velocity = _dash_dir * _top_speed()
-		return _dash_dir * _dash_speed()
+		return _dash_dir * _dash_speed() * _dash_flow_bonus
 	return _steer(delta)
 
 func _steer(delta: float) -> Vector3:
@@ -282,7 +362,7 @@ func _turn_toward(dir: Vector2, delta: float) -> void:
 	visuals.rotation.y = atan2(facing.x, facing.y)
 
 func _top_speed() -> float:
-	return hero_class.base_speed * gauge.modifier(StateDefinition.MOD_MOVE_SPEED)
+	return hero_class.base_speed * (1.0 + gear_speed_bonus + (0.2 if cordial_left > 0 else 0.0)) * gauge.modifier(StateDefinition.MOD_MOVE_SPEED)
 
 func _dash_speed() -> float:
 	return hero_class.dash_distance * gauge.modifier(StateDefinition.MOD_DASH_DISTANCE) / dash_time
@@ -328,8 +408,11 @@ func _on_overloaded(_id: StringName, def: StateDefinition) -> void:
 
 func _on_hazard() -> void:
 	_interrupt_verbs()
-	lose_heart(&"hazard")
-	Juice.sfx("hazard")
+	if restoration_only:
+		lose_stability(15.0)
+	else:
+		lose_heart(&"hazard")
+		Juice.sfx("hazard")
 	respawn_at(last_safe_position)
 
 func _update_safe_position() -> void:

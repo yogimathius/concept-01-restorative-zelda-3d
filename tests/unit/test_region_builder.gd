@@ -9,6 +9,8 @@ var hero: Hero
 
 func load_region() -> void:
 	region = SCENE.instantiate()
+	region.persist_progress = false
+	region.get_node("Builder").restoration_only = false
 	hero = region.get_node("Hero")
 	hero.use_device_input = false
 	world.add_child(region)
@@ -54,7 +56,7 @@ func test_restoring_c1_opens_g1() -> void:
 	var body: StaticBody3D = builder.entities["G1"].body
 	check(not body.get_child(0).disabled, "G1 starts closed")
 	builder.restore("C1")
-	await step(2)
+	await step(95)
 	check(body.get_child(0).disabled, "G1 open after C1 restored")
 	check(builder.entities["K1"].node.restored, "K1 lit")
 

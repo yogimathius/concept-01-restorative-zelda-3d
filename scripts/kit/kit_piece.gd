@@ -25,6 +25,10 @@ func set_restored(value: bool, animate := false) -> void:
 	restored = value
 	if animate and is_inside_tree():
 		var shown := restored_node if restored else corrupted_node
+		if family == "homecoming_grove":
+			shown.scale = Vector3(0.88,0.08,0.88)
+			create_tween().tween_property(shown,"scale",Vector3.ONE,1.6).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+			return
 		shown.scale = Vector3(1.15, 0.8, 1.15)
 		create_tween().tween_property(shown, "scale", Vector3.ONE, 0.35) \
 			.set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)

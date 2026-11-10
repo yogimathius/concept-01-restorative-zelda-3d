@@ -1,6 +1,20 @@
 extends TestCase
 ## Parsing the Region 1 grids (world design §4) into cells.
 
+func test_android_export_includes_runtime_region_maps() -> void:
+	var preset := ConfigFile.new()
+	check(preset.load("res://export_presets.cfg") == OK, "export preset is readable")
+	var filters: String = preset.get_value("preset.0", "include_filter", "")
+	for scene_path in ["res://scenes/levels/region1.tscn", "res://scenes/levels/region2.tscn"]:
+		var scene: PackedScene = load(scene_path)
+		var region := scene.instantiate()
+		var path: String = region.get_node("Builder").level_path
+		var included := false
+		for pattern in filters.split(",", false):
+			included = included or path.trim_prefix("res://").match(pattern.strip_edges())
+		check(included, "Android packs runtime map " + path)
+		region.free()
+
 func test_parses_all_five_areas() -> void:
 	var level := GridLevel.load_file("res://levels/region1.txt")
 	check(level.areas.size() == 5, "five areas (got %d)" % level.areas.size())

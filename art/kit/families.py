@@ -42,12 +42,17 @@ def pointing(bm_part, direction):
 def ground(variation):
     def build(p, corrupted):
         layout = rng_for("ground", variation)
-        # ground is the most repeated piece: calm floor stone, deep seams,
-        # no glow -- bright or busy tiles read as noise at camera distance
         stones, gap = floor_mats(corrupted)
-        flagstones(p, (-0.5, -0.5, 0.5, 0.5), layout, stones, gap, depth=1)
-        if corrupted and variation == "a":
-            crust(p, rng_for("ground-crust", variation), 1, area=0.3, h=(0.14, 0.24))
+        # Quiet, seamless earth carries irregular stepping stones; foliage
+        # belongs to edge dressing rather than every repeated square.
+        p.add(box((0, 0, -0.09), (1.002, 1.002, 0.18)), stones[0])
+        if variation != "a":
+            for i in range(2 if variation == "b" else 3):
+                x = (-0.24 if i == 0 else 0.23) + layout.uniform(-0.06, 0.06)
+                y = layout.uniform(-0.24, 0.24)
+                stone = blob((x, y, 0.006), 0.29 if variation == "b" else 0.22,
+                             layout, jitter=0.12, squash=0.08)
+                p.add(stone, m("chalk") if corrupted else m("ivory_shade"))
     return build
 
 

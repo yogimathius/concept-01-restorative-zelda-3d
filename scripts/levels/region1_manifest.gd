@@ -4,7 +4,7 @@ extends RefCounted
 ## 1-based (column, row) within each area.
 
 const ENTITIES := {
-	"B1": {"kind": "bearer", "area": "R1-S2", "at": Vector2i(8, 6), "socket": Vector2i(8, 4),
+	"B1": {"kind": "bearer", "area": "R1-S2", "at": Vector2i(8, 6), "socket": Vector2i(8, 4), "sockets": [Vector2i(8, 4), Vector2i(8, 8)],
 		"bridge_dir": Vector2i(1, 0), "bridge_len": 3, "pool": "F1", "ripple": 4, "wakes": "A1"},
 	"C1": {"kind": "charger", "area": "R1-S3", "at": Vector2i(5, 7), "conduit": "K1", "pool": "F2", "ripple": 4},
 	"C2": {"kind": "charger", "area": "R1-S4", "at": Vector2i(10, 4), "pool": "F3", "ripple": 3},

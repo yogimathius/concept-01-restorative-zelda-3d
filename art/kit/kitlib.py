@@ -17,9 +17,9 @@ PALETTE = {
     # corrupted
     "chalk": "#777381",
     "chalk_dark": "#5F5B69",
-    "charcoal": "#292832",
+    "charcoal": "#454655",
     "violet": "#59465F",
-    "crust": "#15131B",
+    "crust": "#323543",
     "pool_liquid": "#1B1422",
     "violet_glow": "#B45CE0",
     # restored
@@ -32,11 +32,11 @@ PALETTE = {
     "leaf_light": "#7FD0A0",
     "water": "#5FD6CF",
     # walkable ground: calmer than accent ivory so the floor never glares
-    "floor": "#BBA984",
-    "floor_2": "#AE9C77",
-    "seam": "#23807A",
-    "floor_c": "#6E6A78",
-    "floor_c2": "#625E6D",
+    "floor": "#638575",
+    "floor_2": "#799381",
+    "seam": "#52766B",
+    "floor_c": "#686B7C",
+    "floor_c2": "#78768A",
     "seam_c": "#3A3743",
 }
 

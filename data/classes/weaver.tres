@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" path="res://assets/characters/weaver.glb" id="2_model"]
 [ext_resource type="PackedScene" path="res://scenes/verbs/weaver_pulse.tscn" id="3_pulse"]
 
+[ext_resource type="PackedScene" path="res://scenes/verbs/weaver_mend.tscn" id="9_mend"]
+
 [resource]
 script = ExtResource("1_class")
 display_name = "Weaver"
@@ -14,3 +16,4 @@ base_turn_rate = 16.0
 dash_distance = 3.8
 force_verb = ExtResource("3_pulse")
 state_overrides = []
+restore_verb = ExtResource("9_mend")
